@@ -41,6 +41,15 @@ class TaskFragment : Fragment(), TaskAdapter.Listener {
     private fun setUp() {
         setUpRecycler()
 
+        arguments?.let {
+            val parentTaskId = it.getLong("parentTaskId")
+            if (parentTaskId != 0L) {
+                taskViewModel.loadSubtasks(parentTaskId)
+            } else {
+                taskViewModel.loadTasks()
+            }
+        }
+
         with (taskViewModel) {
             tasksEvent.observe(this@TaskFragment, Observer { tasks ->
                 adapter.submitList(tasks)
@@ -48,14 +57,16 @@ class TaskFragment : Fragment(), TaskAdapter.Listener {
         }
     }
 
+
     private fun setUpRecycler() {
         recyclerTasks.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         recyclerTasks.itemAnimator = DefaultItemAnimator()
         recyclerTasks.adapter = adapter
     }
 
-    override fun onTaskClicked(task: Task) {
 
+    override fun onTaskClicked(task: Task) {
+        Navigator.navigateToTaskDetailActivity(task, context!!)
     }
 
     override fun onTaskLongClicked(task: Task) {
@@ -68,8 +79,15 @@ class TaskFragment : Fragment(), TaskAdapter.Listener {
             }
         )
 
+        if (task.parentTaskId == null) {
+            items.add(BottomMenuItem(R.drawable.ic_add, getString(R.string.add_subtask)) {
+                Navigator.navigateToNewTaskActivity(task.id, context!!)
+            })
+        }
+
         BottomSheetMenu(activity!!, items).show()
     }
+
 
     private fun showConfirmDeleteTaskDialog(task: Task) {
         AlertDialog.Builder(activity!!)

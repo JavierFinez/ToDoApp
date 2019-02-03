@@ -8,9 +8,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import io.keepcoding.todo.R
 import kotlinx.android.synthetic.main.bottom_sheet_menu.view.*
 
-/**
- * Created by costular on 29/08/17.
- */
+
 class BottomSheetMenu(private val context: Context,
                       private val items: List<BottomMenuItem>) {
 

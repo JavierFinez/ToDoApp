@@ -7,9 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import io.keepcoding.todo.R
 import kotlinx.android.synthetic.main.item_bottom_sheet_menu.view.*
 
-/**
- * Created by costular on 29/08/17.
- */
+
 
 class BottomSheetMenuAdapter(private val items: List<BottomMenuItem>,
                              val clickListener: () -> Unit) : RecyclerView.Adapter<BottomSheetMenuAdapter.BottomSheetMenuViewHolder>() {

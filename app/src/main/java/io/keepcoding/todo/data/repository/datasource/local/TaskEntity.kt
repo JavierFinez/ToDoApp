@@ -1,11 +1,19 @@
 package io.keepcoding.todo.data.repository.datasource.local
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 import java.util.*
+import androidx.room.ForeignKey.CASCADE
 
-@Entity(tableName = "tasks")
+@Entity(
+    tableName = "tasks",
+    foreignKeys = [ForeignKey(
+        entity = TaskEntity::class,
+        parentColumns = arrayOf("id"),
+        childColumns = arrayOf("parent_task_id"),
+        onDelete = CASCADE)
+    ],
+    indices = [Index(value = ["parent_task_id"])]
+)
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
@@ -15,5 +23,7 @@ data class TaskEntity(
     @ColumnInfo(name = "is_done")
     val isDone: Boolean,
     @ColumnInfo(name = "is_high_priority")
-    val isHighPriority: Boolean
+    val isHighPriority: Boolean,
+    @ColumnInfo(name = "parent_task_id")
+    val parentTaskId: Long?
 )

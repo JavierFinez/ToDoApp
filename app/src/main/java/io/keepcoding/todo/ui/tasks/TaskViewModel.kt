@@ -24,8 +24,11 @@ class TaskViewModel(val taskRepository: TaskRepository) : BaseViewModel() {
     val newTaskAddedEvent = MutableLiveData<Event<Unit>>()
     val taskUpdatedEvent = MutableLiveData<Event<Task>>()
 
+    val taskEvent = MutableLiveData<Event<Task>>()
+    val taskDeletedEvent = MutableLiveData<Event<Unit>>()
+
     init {
-        loadTasks()
+        //loadTasks()
     }
 
     fun loadTasks() {
@@ -43,8 +46,8 @@ class TaskViewModel(val taskRepository: TaskRepository) : BaseViewModel() {
             ).addTo(compositeDisposable)
     }
 
-    fun addNewTask(taskContent: String, isHighPriority: Boolean) {
-        val newTask = Task(0, taskContent, Date(), false, isHighPriority)
+    fun addNewTask(taskContent: String, isHighPriority: Boolean, parentTaskId: Long) {
+        val newTask = Task(0, taskContent, Date(), false, isHighPriority, if (parentTaskId == 0L) null else parentTaskId)
 
         Completable.fromCallable {
             taskRepository.insert(newTask)
@@ -76,6 +79,21 @@ class TaskViewModel(val taskRepository: TaskRepository) : BaseViewModel() {
                 }
             )
             .addTo(compositeDisposable)
+    }
+
+    fun getTask(id: Long) {
+        taskRepository
+            .getTaskById(id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = { task ->
+                    taskEvent.call(task)
+                },
+                onError = {
+                    Log.e("TaskViewModel", "Error: $it")
+                }
+            ).addTo(compositeDisposable)
     }
 
     fun markAsDone(task: Task) {
@@ -116,5 +134,20 @@ class TaskViewModel(val taskRepository: TaskRepository) : BaseViewModel() {
                 }
             )
             .addTo(compositeDisposable)
+    }
+
+    fun loadSubtasks(parentTaskId: Long) {
+        taskRepository
+            .observeSubTasks(parentTaskId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onNext = { tasks ->
+                    tasksEvent.value = tasks
+                },
+                onError = {
+                    Log.e("TaskViewModel", "Error: $it")
+                }
+            ).addTo(compositeDisposable)
     }
 }

@@ -11,7 +11,8 @@ class TaskMapper : Mapper<TaskEntity, Task> {
             input.content,
             input.createdAt,
             input.isDone,
-            input.isHighPriority
+            input.isHighPriority,
+            input.parentTaskId
         )
 
     override fun transformList(input: List<TaskEntity>): List<Task> =

@@ -16,6 +16,9 @@ abstract class TaskDao {
     @Query("SELECT * FROM tasks WHERE id = :id")
     abstract fun getById(id: Long): Single<TaskEntity>
 
+    @Query("SELECT * FROM tasks WHERE parent_task_id = :parentTaskId ORDER BY is_high_priority DESC, created_at DESC")
+    abstract fun observeSubTasks(parentTaskId: Long): Flowable<List<TaskEntity>>
+
     @Insert
     abstract fun insert(taskEntity: TaskEntity)
 

@@ -9,7 +9,7 @@ import io.reactivex.Single
 
 class LocalDataSource(val todoDatabase: TodoDatabase,
                       val taskMapper: TaskMapper,
-                      val taskEntitiyMapper: TaskEntityMapper) : TaskDataSource {
+                      val taskEntityMapper: TaskEntityMapper) : TaskDataSource {
 
     override fun getAll(): Single<List<Task>> =
         todoDatabase
@@ -23,6 +23,12 @@ class LocalDataSource(val todoDatabase: TodoDatabase,
             .observeAll()
             .map { taskMapper.transformList(it) }
 
+    override fun observeSubTasks(parentTaskId: Long): Flowable<List<Task>> =
+        todoDatabase
+            .getTaskDao()
+            .observeSubTasks(parentTaskId)
+            .map { taskMapper.transformList(it) }
+
     override fun getTaskById(taskId: Long): Single<Task> =
         todoDatabase
             .getTaskDao()
@@ -30,15 +36,15 @@ class LocalDataSource(val todoDatabase: TodoDatabase,
             .map { taskMapper.transform(it) }
 
     override fun insert(task: Task) {
-        val taskEntitiy = taskEntitiyMapper.transform(task)
+        val taskEntity = taskEntityMapper.transform(task)
 
         todoDatabase
             .getTaskDao()
-            .insert(taskEntitiy)
+            .insert(taskEntity)
     }
 
     override fun delete(task: Task) {
-        val taskEntity = taskEntitiyMapper.transform(task)
+        val taskEntity = taskEntityMapper.transform(task)
 
         todoDatabase
             .getTaskDao()
@@ -46,11 +52,11 @@ class LocalDataSource(val todoDatabase: TodoDatabase,
     }
 
     override fun update(task: Task) {
-        val taskEntitiy = taskEntitiyMapper.transform(task)
+        val taskEntity = taskEntityMapper.transform(task)
 
         todoDatabase
             .getTaskDao()
-            .update(taskEntitiy)
+            .update(taskEntity)
     }
 
 }
